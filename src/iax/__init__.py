@@ -1,12 +1,15 @@
 import csv
+import json
+
+from dataclasses import asdict
 
 
 def iax(dataclass):
-    @_attach(dataclass)
+    @attach(dataclass)
     def _to_csv_single(self, delimeter = ','):
         return delimeter.join(str(getattr(self, k)) for k in self.__annotations__)
 
-    @_attach(dataclass, staticmethod)
+    @attach(dataclass, staticmethod)
     def to_csv(file, items, write_header = False, **kwargs):
         with open(file, 'w', newline = '') as csvfile:
             writer = csv.writer(
@@ -18,12 +21,12 @@ def iax(dataclass):
             for item in items:
                 writer.writerow(getattr(item, k) for k in item.__annotations__)
 
-    @_attach(dataclass, classmethod)
+    @attach(dataclass, classmethod)
     def _from_csv_single(cls, csv):
         args = (t(d) for d, t in zip(csv, cls.__annotations__.values()))
         return cls(*args)
 
-    @_attach(dataclass, classmethod)
+    @attach(dataclass, classmethod)
     def from_csv(cls, file, has_header = False, **kwargs):
         with open(file, newline = '') as csvfile:
             reader = csv.reader(csvfile, **kwargs)
@@ -32,10 +35,30 @@ def iax(dataclass):
             for row in reader:
                 yield cls._from_csv_single(row)
 
+    @attach(dataclass, staticmethod)
+    def to_json(file, items, **kwargs):
+        with open(file, mode = 'w') as jsonfile:
+            json.dump(
+                [asdict(item) for item in items],
+                jsonfile,
+                **kwargs,
+            )
+
+    @attach(dataclass, classmethod)
+    def _from_json_single(cls, j):
+        return cls(**{k: cls.__annotations__[k](v) for k, v in j.items()})
+
+    @attach(dataclass, classmethod)
+    def from_json(cls, file):
+        with open(file) as jsonfile:
+            jsons = json.load(jsonfile)
+            for j in jsons:
+                yield cls._from_json_single(j)
+
     return dataclass
 
 
-def _attach(cls, pre = None):
+def attach(cls, pre = None):
     def attacher(func):
         if pre is None:
             setattr(cls, func.__name__, func)

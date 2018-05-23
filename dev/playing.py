@@ -21,5 +21,8 @@ print(f)
 # for k, v in Foo.__dict__.items():
 #     print(k, v)
 
-csv = f.to_csv(file = 'csv.csv', items = [f, f2], delimiter = ',', write_header = True)
+csv = Foo.to_csv(file = 'csv.csv', items = [f, f2], delimiter = ',', write_header = True)
 print(list(Foo.from_csv('csv.csv', delimiter = ',', has_header = True)))
+
+json = Foo.to_json(file = 'json.json', items = [f, f2], indent = 4)
+print(list(Foo.from_json('json.json')))
