@@ -1,24 +1,45 @@
 import csv
 
 
-def func(dataclass):
-    def to_csv(self, delimeter = ','):
+def iax(dataclass):
+    @_attach(dataclass)
+    def _to_csv_single(self, delimeter = ','):
         return delimeter.join(str(getattr(self, k)) for k in self.__annotations__)
 
-    dataclass.to_csv = to_csv
+    @_attach(dataclass, staticmethod)
+    def to_csv(file, items, write_header = False, **kwargs):
+        with open(file, 'w', newline = '') as csvfile:
+            writer = csv.writer(
+                csvfile,
+                **kwargs
+            )
+            if write_header:
+                writer.writerow(a for a in items[0].__annotations__)
+            for item in items:
+                writer.writerow(getattr(item, k) for k in item.__annotations__)
 
+    @_attach(dataclass, classmethod)
     def _from_csv_single(cls, csv):
         args = (t(d) for d, t in zip(csv, cls.__annotations__.values()))
         return cls(*args)
 
-    dataclass._from_csv_single = classmethod(_from_csv_single)
-
-    def from_csv(cls, file, **kwargs):
+    @_attach(dataclass, classmethod)
+    def from_csv(cls, file, has_header = False, **kwargs):
         with open(file, newline = '') as csvfile:
-            spamreader = csv.reader(csvfile, **kwargs)
-            for row in spamreader:
+            reader = csv.reader(csvfile, **kwargs)
+            if has_header:
+                next(reader)
+            for row in reader:
                 yield cls._from_csv_single(row)
 
-    dataclass.from_csv = classmethod(from_csv)
-
     return dataclass
+
+
+def _attach(cls, pre = None):
+    def attacher(func):
+        if pre is None:
+            setattr(cls, func.__name__, func)
+        else:
+            setattr(cls, func.__name__, pre(func))
+
+    return attacher
