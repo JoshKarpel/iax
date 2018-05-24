@@ -1,12 +1,9 @@
 import datetime
 
-from dataclasses import dataclass
-
 import iax
 
 
-@iax.iax
-@dataclass
+@iax.iax()
 class Foo:
     a: int
     b: str
@@ -26,3 +23,4 @@ print(list(Foo.from_csv('csv.csv', delimiter = ',', has_header = True)))
 
 json = Foo.to_json(file = 'json.json', items = [f, f2], indent = 4)
 print(list(Foo.from_json('json.json')))
+print(type(f.a))
