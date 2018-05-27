@@ -1,10 +1,10 @@
 import pytest
 
-from iax import iax
+from ix import ix
 
 
 def test_iax_with_no_kwargs():
-    @iax
+    @ix
     class Foo:
         a: int
 
@@ -13,7 +13,7 @@ def test_iax_with_no_kwargs():
 
 
 def test_iax_with_kwargs():
-    @iax(eq = False)
+    @ix(eq = False)
     class Foo:
         a: int
 

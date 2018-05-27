@@ -7,14 +7,14 @@ with open(os.path.join(THIS_DIR, 'README.md')) as f:
     long_desc = f.read()
 
 setup(
-    name = 'iax',
+    name = 'ix',
     version = '0.1.0',
     author = 'Josh Karpel',
     author_email = 'josh.karpel@gmail.com',
     license = '',
-    description = 'Import and eXport',
+    description = 'Import/eXport',
     long_description = long_desc,
-    url = 'https://github.com/JoshKarpel/iax',
+    url = 'https://github.com/JoshKarpel/ix',
     classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Natural Language :: English',

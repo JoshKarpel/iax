@@ -1,15 +1,15 @@
 import datetime
 
-import iax
+import ix
 
 
-@iax.iax()
+@ix.ix()
 class Foo:
     a: int
     b: str
 
 
-@iax.iax()
+@ix.ix()
 class Bar:
     f: Foo
 

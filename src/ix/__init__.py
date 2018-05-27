@@ -4,8 +4,8 @@ import json
 from dataclasses import dataclass, asdict
 
 
-def iax(*args, **kwargs):
-    def iax_inner(dc):
+def ix(*args, **kwargs):
+    def inner(dc):
         dc = dataclass(dc, **kwargs)
 
         dc.__iax__ = True
@@ -84,9 +84,9 @@ def iax(*args, **kwargs):
         return dc
 
     if len(args) == 1 and len(kwargs) == 0:
-        return iax_inner(args[0])
+        return inner(args[0])
 
-    return iax_inner
+    return inner
 
 
 def attach(cls, pre = None):

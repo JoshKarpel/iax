@@ -2,11 +2,11 @@ import pytest
 
 import random
 
-from iax import iax
+from ix import ix
 
 
 def test_ints_to_csvs_with_header():
-    @iax
+    @ix
     class Ints:
         a: int
         b: int
@@ -23,7 +23,7 @@ def test_ints_to_csvs_with_header():
 
 
 def test_ints_to_csvs_no_header():
-    @iax
+    @ix
     class Ints:
         a: int
         b: int

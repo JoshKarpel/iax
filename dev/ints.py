@@ -1,9 +1,9 @@
 import random
 
-from iax import iax
+from ix import ix
 
 
-@iax
+@ix
 class Ints:
     a: int
     b: int
