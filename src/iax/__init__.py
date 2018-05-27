@@ -49,7 +49,19 @@ def iax(**kwargs):
 
         @attach(dc, classmethod)
         def _from_json_single(cls, j):
-            return cls(**{k: cls.__annotations__[k](v) for k, v in j.items()})
+            print(cls, j, cls.__annotations__)
+
+            args = {}
+            for key, value in j.items():
+                t = cls.__annotations__[key]
+                try:
+                    v = t._from_json_single(value)
+                except AttributeError:
+                    v = t(value)
+                args[key] = v
+
+            return cls(**args)
+            # return cls(**{k: cls.__annotations__[k](v) for k, v in j.items()})
 
         @attach(dc, classmethod)
         def from_json(cls, file):
