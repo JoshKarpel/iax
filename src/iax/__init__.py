@@ -4,9 +4,11 @@ import json
 from dataclasses import dataclass, asdict
 
 
-def iax(**kwargs):
+def iax(*args, **kwargs):
     def iax_inner(dc):
         dc = dataclass(dc, **kwargs)
+
+        dc.__iax__ = True
 
         @attach(dc)
         def _to_csv_single(self, delimeter = ','):
@@ -23,6 +25,15 @@ def iax(**kwargs):
                     writer.writerow(a for a in items[0].__annotations__)
                 for item in items:
                     writer.writerow(getattr(item, k) for k in item.__annotations__)
+
+        @attach(dc, staticmethod)
+        def to_csvs(items, write_header = False, delimiter = ','):
+            s = []
+            if write_header:
+                s.append(delimiter.join(a for a in items[0].__annotations__))
+            for item in items:
+                s.append(delimiter.join(str(getattr(item, k)) for k in item.__annotations__))
+            return '\n'.join(s)
 
         @attach(dc, classmethod)
         def _from_csv_single(cls, csv):
@@ -71,6 +82,9 @@ def iax(**kwargs):
                     yield cls._from_json_single(j)
 
         return dc
+
+    if len(args) == 1 and len(kwargs) == 0:
+        return iax_inner(args[0])
 
     return iax_inner
 
