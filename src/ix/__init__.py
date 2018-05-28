@@ -83,6 +83,7 @@ def ix(*args, **kwargs):
 
         return dc
 
+    # if called without parens, act directly on the first arg (the class)
     if len(args) == 1 and len(kwargs) == 0:
         return inner(args[0])
 
