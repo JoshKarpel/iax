@@ -14,7 +14,8 @@ def ix(*args, **kwargs):
         def _to_csv_single(self, delimeter = ','):
             return delimeter.join(str(getattr(self, k)) for k in self.__annotations__)
 
-        @attach(dc, staticmethod)
+        @attach(dc)
+        @staticmethod
         def to_csv(file, items, write_header = False, **kwargs):
             with open(file, 'w', newline = '') as csvfile:
                 writer = csv.writer(
@@ -26,7 +27,8 @@ def ix(*args, **kwargs):
                 for item in items:
                     writer.writerow(getattr(item, k) for k in item.__annotations__)
 
-        @attach(dc, staticmethod)
+        @attach(dc)
+        @staticmethod
         def to_csvs(items, write_header = False, delimiter = ','):
             s = []
             if write_header:
@@ -35,12 +37,14 @@ def ix(*args, **kwargs):
                 s.append(delimiter.join(str(getattr(item, k)) for k in item.__annotations__))
             return '\n'.join(s)
 
-        @attach(dc, classmethod)
+        @attach(dc)
+        @classmethod
         def _from_csv_single(cls, csv):
             args = (t(d) for d, t in zip(csv, cls.__annotations__.values()))
             return cls(*args)
 
-        @attach(dc, classmethod)
+        @attach(dc)
+        @classmethod
         def from_csv(cls, file, has_header = False, **kwargs):
             with open(file, newline = '') as csvfile:
                 reader = csv.reader(csvfile, **kwargs)
@@ -49,7 +53,8 @@ def ix(*args, **kwargs):
                 for row in reader:
                     yield cls._from_csv_single(row)
 
-        @attach(dc, staticmethod)
+        @attach(dc)
+        @staticmethod
         def to_json(file, items, **kwargs):
             with open(file, mode = 'w') as jsonfile:
                 json.dump(
@@ -58,10 +63,17 @@ def ix(*args, **kwargs):
                     **kwargs,
                 )
 
-        @attach(dc, classmethod)
-        def _from_json_single(cls, j):
-            print(cls, j, cls.__annotations__)
+        @attach(dc)
+        @staticmethod
+        def to_jsons(items, **kwargs):
+            return json.dumps(
+                [asdict(item) for item in items],
+                **kwargs
+            )
 
+        @attach(dc)
+        @classmethod
+        def _from_json_single(cls, j):
             args = {}
             for key, value in j.items():
                 t = cls.__annotations__[key]
@@ -72,14 +84,21 @@ def ix(*args, **kwargs):
                 args[key] = v
 
             return cls(**args)
-            # return cls(**{k: cls.__annotations__[k](v) for k, v in j.items()})
 
-        @attach(dc, classmethod)
+        @attach(dc)
+        @classmethod
         def from_json(cls, file):
             with open(file) as jsonfile:
                 jsons = json.load(jsonfile)
                 for j in jsons:
                     yield cls._from_json_single(j)
+
+        @attach(dc)
+        @classmethod
+        def from_jsons(cls, jsons):
+            js = json.loads(jsons)
+            for j in js:
+                yield cls._from_json_single(j)
 
         return dc
 
@@ -90,11 +109,12 @@ def ix(*args, **kwargs):
     return inner
 
 
-def attach(cls, pre = None):
+def attach(cls):
     def attacher(func):
-        if pre is None:
-            setattr(cls, func.__name__, func)
-        else:
-            setattr(cls, func.__name__, pre(func))
+        try:
+            name = func.__name__
+        except AttributeError:
+            name = func.__func__.__name__
+        setattr(cls, name, func)
 
     return attacher
